@@ -19,6 +19,7 @@ LEVELS = { 'debug': logging.DEBUG,
            }
 
 
+#### May not need this class. TBD ####
 class ConvertDateException(Exception):
     """Convert date exception class"""
     logging.basicConfig(level=logging.ERROR)
