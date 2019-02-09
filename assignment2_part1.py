@@ -7,22 +7,19 @@ import urllib2
 import csv
 import datetime
 import logging
+import argparse
 
 
 URL = 'https://s3.amazonaws.com/cuny-is211-spring2015/birthdays100.csv'
-LOG_FILENAME = "assignment2_output.log"
 LEVELS = { 'debug': logging.DEBUG,
            'info': logging.INFO,
            'warning': logging.ERROR,
            'error': logging.ERROR,
            'critical': logging.CRITICAL
            }
-
-
-#### May not need this class. TBD ####
-class ConvertDateException(Exception):
-    """Convert date exception class"""
-    logging.basicConfig(level=logging.ERROR)
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument("--url", help="Add a URL to use in script.")
+ARGS = PARSER.parse_args()
 
 
 def downloadData(filename):
@@ -39,26 +36,64 @@ def processData(readfile=downloadData(URL)):
     counter = 0
 
     for row in datafile:
+        """Iterate over CSV"""
         for key, val in row.iteritems():
+            """By default, each key comes out with column header names. Flip
+            the 'id' column to make the value the new key instead with empty
+            values."""
             if key == "id":
                 id_num = val
                 birthday_data[id_num] = None
         for key, val in row.iteritems():
+            """Once new keys are in place, start pulling data for tuples."""
             if key == "name":
                 name = val
         for key, val in row.iteritems():
+            """Process the birthday column and pull data to be added to
+            tuples."""
             counter += 1
             if key == "birthday":
-                dateformat = "%d/%m/%Y"
+                format = "%d/%m/%Y"
                 try:
-                    temp_bd = datetime.datetime.strptime(val, dateformat).date()
+                    temp_bd = datetime.datetime.strptime(val, format).date()
                 except ValueError:
-                    logging.error('Error processing line #: ' + str(counter) + ' for ID #: ' + id_num + '.' )
+                    logging.error('Error processing line #: ' + str(counter) +
+                                  ' for ID #: ' + id_num + '.' )
                 else:
                     #birthday = temp_bd.strftime(dateformat)
                     birthday = str(temp_bd)
                     birthday_data[id_num] = (name, birthday)
+
+    for key, val in birthday_data.items():
+        """Clean up the new dictionary by removing keys with 'None' values due
+        to date processing errors."""
+        if val == None:
+            birthday_data.pop(key, None)
     return birthday_data
 
 
-print processData()
+def displayPerson(id, personData=processData()):
+    """3rd pretty docstring"""
+    try:
+        name = personData[str(id)][0]
+        birthday = personData[str(id)][1]
+        result = "Person #:{0} is {1} with a birthday of {2}.".format(
+            id, name, birthday)
+    except KeyError:
+        result = "No user is found with that id."
+    return result
+
+
+def main(url):
+    print url
+    return
+
+
+try:
+    if ARGS.url:
+        user_url = ARGS.url
+    else:
+        pass
+
+
+main(user_url)
