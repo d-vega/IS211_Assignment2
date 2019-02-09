@@ -96,4 +96,3 @@ try:
         pass
 
 
-main(user_url)
