@@ -11,15 +11,16 @@ import argparse
 
 
 URL = 'https://s3.amazonaws.com/cuny-is211-spring2015/birthdays100.csv'
-LEVELS = { 'debug': logging.DEBUG,
-           'info': logging.INFO,
-           'warning': logging.ERROR,
-           'error': logging.ERROR,
-           'critical': logging.CRITICAL
-           }
 PARSER = argparse.ArgumentParser()
 PARSER.add_argument("--url", help="Add a URL to use in script.")
 ARGS = PARSER.parse_args()
+
+
+if ARGS.url:
+    pass
+else:
+    print "Error, no URL specified. Exiting . . ."
+    exit()
 
 
 def downloadData(filename):
@@ -29,7 +30,7 @@ def downloadData(filename):
     return response
 
 
-def processData(readfile=downloadData(URL)):
+def processData(readfile):
     """2nd pretty docstring"""
     datafile = csv.DictReader(readfile)
     birthday_data = {}
@@ -57,10 +58,13 @@ def processData(readfile=downloadData(URL)):
                 try:
                     temp_bd = datetime.datetime.strptime(val, format).date()
                 except ValueError:
-                    logging.error('Error processing line #: ' + str(counter) +
+                    assignment2 = logging.getLogger('assignment2')
+                    assignment2.setLevel(logging.ERROR)
+                    assignment2.basicConfig(filename='errors.log',
+                                            level=logging.ERROR)
+                    assignment2.error('Error processing line #: ' + str(counter) +
                                   ' for ID #: ' + id_num + '.' )
                 else:
-                    #birthday = temp_bd.strftime(dateformat)
                     birthday = str(temp_bd)
                     birthday_data[id_num] = (name, birthday)
 
@@ -72,7 +76,7 @@ def processData(readfile=downloadData(URL)):
     return birthday_data
 
 
-def displayPerson(id, personData=processData()):
+def displayPerson(id, personData):
     """3rd pretty docstring"""
     try:
         name = personData[str(id)][0]
@@ -85,14 +89,14 @@ def displayPerson(id, personData=processData()):
 
 
 def main(url):
-    print url
-    return
+    """Main function"""
+    try:
+        csvData = downloadData(url)
+        personData = processData(csvData)
+    except Exception as error_type:
+        raise (error_type)
+        exit()
+    return personData
 
 
-try:
-    if ARGS.url:
-        user_url = ARGS.url
-    else:
-        pass
-
-
+main(ARGS.url)
