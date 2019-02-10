@@ -8,9 +8,10 @@ import csv
 import datetime
 import logging
 import argparse
+import os
 
 
-URL = 'https://s3.amazonaws.com/cuny-is211-spring2015/birthdays100.csv'
+USER_INPUT = raw_input('Enter an ID number to search for: ')
 PARSER = argparse.ArgumentParser()
 PARSER.add_argument("--url", help="Add a URL to use in script.")
 ARGS = PARSER.parse_args()
@@ -19,7 +20,10 @@ ARGS = PARSER.parse_args()
 if ARGS.url:
     pass
 else:
-    print "Error, no URL specified. Exiting . . ."
+    print "No URL specified. Please see 'python assignment2_part1.py -h for" +\
+          " help."
+    os.system('python assignment2_part1.py -h')
+    print "Exiting . . ."
     exit()
 
 
@@ -58,10 +62,10 @@ def processData(readfile):
                 try:
                     temp_bd = datetime.datetime.strptime(val, format).date()
                 except ValueError:
+                    logging.basicConfig(filename='errors.log',
+                                        level=logging.ERROR)
                     assignment2 = logging.getLogger('assignment2')
                     assignment2.setLevel(logging.ERROR)
-                    assignment2.basicConfig(filename='errors.log',
-                                            level=logging.ERROR)
                     assignment2.error('Error processing line #: ' + str(counter) +
                                   ' for ID #: ' + id_num + '.' )
                 else:
@@ -99,4 +103,16 @@ def main(url):
     return personData
 
 
-main(ARGS.url)
+RESULT = main(ARGS.url)
+
+
+if int(USER_INPUT) <= 0:
+    print "Invalid number. Exiting . . ."
+    exit()
+else:
+    while int(USER_INPUT) > 0:
+        print displayPerson(USER_INPUT, RESULT)
+        USER_INPUT = raw_input('Enter an ID number to search for: ')
+        if int(USER_INPUT) <= 0:
+            print "Invalid number. Exiting . . ."
+            break
