@@ -56,9 +56,11 @@ def processData(readfile):
         dict: Returns a dictionary processed from CSV object content.
 
     EXAMPLES:
-        >>> processData(downloadData('https://s3.amazonaws.com/cuny-is211-spring2015/birthdays100.csv'))
+        >>> processData(downloadData('
+        https://s3.amazonaws.com/cuny-is211-spring2015/birthdays100.csv'))
 
-        >>> data = downloadData('https://s3.amazonaws.com/cuny-is211-spring2015/birthdays100.csv')
+        >>> data = downloadData('
+        https://s3.amazonaws.com/cuny-is211-spring2015/birthdays100.csv')
         >>> processData(data)
     """
     datafile = csv.DictReader(readfile)
@@ -83,16 +85,17 @@ def processData(readfile):
             tuples."""
             counter += 1
             if key == "birthday":
-                format = "%d/%m/%Y"
+                d_format = "%d/%m/%Y"
                 try:
-                    temp_bd = datetime.datetime.strptime(val, format).date()
+                    temp_bd = datetime.datetime.strptime(val, d_format).date()
                 except ValueError:
                     logging.basicConfig(filename='errors.log',
                                         level=logging.ERROR)
                     assignment2 = logging.getLogger('assignment2')
                     assignment2.setLevel(logging.ERROR)
-                    assignment2.error('Error processing line #: ' + str(counter) +
-                                  ' for ID #: ' + id_num + '.' )
+                    assignment2.error('Error processing line #: ' +\
+                                      str(counter) + ' for ID #: ' + id_num +\
+                                      '.')
                 else:
                     birthday = str(temp_bd)
                     birthday_data[id_num] = (name, birthday)
@@ -100,7 +103,7 @@ def processData(readfile):
     for key, val in birthday_data.items():
         """Clean up the new dictionary by removing keys with 'None' values due
         to date processing errors."""
-        if val == None:
+        if val is None:
             birthday_data.pop(key, None)
     return birthday_data
 
@@ -150,7 +153,7 @@ def main(url):
         csvData = downloadData(url)
         personData = processData(csvData)
     except Exception as error_type:
-        raise (error_type)
+        raise error_type
         exit()
     return personData
 
@@ -159,7 +162,7 @@ RESULT = main(ARGS.url)
 
 
 if int(USER_INPUT) <= 0:
-    """Check if user input is a valid key value. When not valid, 
+    """Check if user input is a valid key value. When not valid,
     exit program."""
     print "Invalid number. Exiting . . ."
     exit()
